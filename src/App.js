@@ -3,30 +3,33 @@ import './App.css';
 import React from 'react';
 
 class App extends React.Component {
-  constructor(){
+  constructor() {
     super();
     this.state = {
-      name: 'Franscisco'
+      countries: [],
+      stats: []
     }
   }
-  render(){
+  async componentDidMount() {
+    const resp = await fetch('https://restcountries.com/v3.1/all')
+    const countries = await resp.json()
+    this.setState({ countries })
+    this.state.countries.forEach(async country => {
+      const resp = await fetch(`https://restcountries.com/v3.1/name/${country.name.comon}`)
+      const data = await resp.json()
+      if(data.length){
+        this.setState(prevState => (
+          {stats:prevState.stats.comon(data[data.length-1])}
+        ))
+      }
+    });
+  }
+  render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {this.state.name}
-          </a>
-          <button onClick={() => this.setState({name:'Michael'})}>Change Name</button>
-        </header>
+        {
+          this.state.stats.map(country => <h1>{country.name.comon}</h1>)
+        }
       </div>
     )
   }
